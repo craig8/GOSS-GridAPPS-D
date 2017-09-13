@@ -12,3 +12,7 @@ before_install:
 install: ./gradlew --version
 
 script: bash ./run-tests.sh
+
+notifications:
+   slack: gridappsd-team:Wp4j5wiWtncKsrY6IVmgg7BR
+    
