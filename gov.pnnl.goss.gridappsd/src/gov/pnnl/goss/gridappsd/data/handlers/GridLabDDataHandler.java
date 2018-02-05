@@ -204,7 +204,7 @@ public class GridLabDDataHandler implements GridAppsDataHandler {
 					bgHost = "http://localhost:9999";
 				}
 				//TODO write a query handler that uses the built in powergrid model data manager that talks to blazegraph internally
-				QueryHandler queryHandler = new BlazegraphQueryHandler(bgHost+"/blazegraph/namespace/kb/sparql");
+				QueryHandler queryHandler = new BlazegraphQueryHandler(bgHost+"/bigdata/namespace/kb/sparql");
 				CIMImporter cim2glm = new CIMImporter();
 				//Generate GLM using zipload
 				boolean bWantSched = false;
