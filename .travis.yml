@@ -13,12 +13,12 @@ before_install:
 
 install: ./gradlew --version
 
-script: 
+#script: 
   # Run integration level tests if successful export
   # a bnd.run.jar file to be used in the image 
   # that is built
 #  - './gradlew check'
-  - './gradlew export'
+#  - './gradlew export'
 
 deploy:
   provider: script
