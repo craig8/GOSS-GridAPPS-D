@@ -23,7 +23,7 @@ script:
 
 after_success:
   - if [[ "$TRAVIS_BRANCH" == "travis-push-image" ]]; then
-      if [[ "$TRAVIS_REPO_SLUG", "GRIDAPPSD/GOSS-GRIDAPPS-D" ]]; then
+      if [[ "$TRAVIS_REPO_SLUG", "craig8/GOSS-GRIDAPPS-D" ]]; then
         docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
         make push-image ;
       fi      
