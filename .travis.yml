@@ -19,15 +19,12 @@ script:
   # that is built
   - './gradlew check'
   - './gradlew export'
-  - 'make image'
 
-after_success:
-  - if [[ "$TRAVIS_BRANCH" == "travis-push-image" ]]; then
-      if [[ "$TRAVIS_REPO_SLUG", "craig8/GOSS-GRIDAPPS-D" ]]; then
-        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
-        make push-image ;
-      fi      
-    fi
+deploy:
+  provider: script
+  script: bash .travis/deploy.sh
+  on:
+    branch: travis-push-image
 
 # don't notify me when things fail
 notifications:
