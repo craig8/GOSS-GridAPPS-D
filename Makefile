@@ -1,4 +1,4 @@
-IMAGE := $DOCKER_PROJECT/gridappsd:dev
+IMAGE := ${DOCKER_PROJECT}/gridappsd:dev
 
 #test:
 #	true
