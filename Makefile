@@ -7,7 +7,7 @@ image:
 	docker build -t $(IMAGE) .
 
 push-image:
-    docker push $(IMAGE)
+	docker push $(IMAGE)
 
 .PHONY: image push-image 
 # test
