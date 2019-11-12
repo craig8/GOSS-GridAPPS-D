@@ -191,8 +191,8 @@ public class ProvenTimeSeriesDataManagerImpl implements TimeseriesDataManager, D
 	@Override
 	public void storeSimulationOutput(String simulationId) throws Exception {
 		// Make this a no op so we don't store simulation output
-		subscribeAndStoreDataFromTopic("/topic/" + GridAppsDConstants.topic_simulation + ".output." + simulationId,
-				"simulation", null);
+		//		subscribeAndStoreDataFromTopic("/topic/" + GridAppsDConstants.topic_simulation + ".output." + simulationId,
+		//				"simulation", null);
 	}
 
 	@Override
