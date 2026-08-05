@@ -500,18 +500,13 @@ public class TopologyRequestProcessTest {
                 Mockito.eq(TopologyRequestProcess.TOPOLOGY_RESPONSE_TIMEOUT_MS));
     }
 
-    // --- Success signal (GADP-051 phase-1 verification follow-up): a working
-    // topology query and a silently broken one must not look identical in the
-    // logs. These tests assert the one-line success signal and the per-attempt
-    // visibility line, both logged at INFO (the existing failure paths already
-    // covered warn/error). ---
+    // --- Success signal (GADP-051): success and per-attempt logging, both at INFO ---
 
     @Test
     public void everyAttemptLogsAtInfoRegardlessOfOutcomeIncludingACleanNullTimeout() throws Exception {
-        // Two clean (non-throwing) null timeouts, then success on the third
-        // attempt. Before this change, a clean null timeout produced NO log at
-        // all (only the exception-throwing catch block logged anything), so a
-        // zero-retry and a two-retry cold start were indistinguishable.
+        // Before this change, a clean null timeout produced no log at all (only
+        // the exception-throwing catch path logged), so a zero-retry and a
+        // two-retry cold start were indistinguishable.
         DataResponse dataResponse = Mockito.mock(DataResponse.class);
         Mockito.when(client.getResponse(Mockito.any(), Mockito.eq(TopologyRequestProcess.TOPOLOGY_REQUEST_TOPIC),
                 Mockito.eq(RESPONSE_FORMAT.JSON), Mockito.eq(TopologyRequestProcess.TOPOLOGY_RESPONSE_TIMEOUT_MS)))
@@ -547,11 +542,9 @@ public class TopologyRequestProcessTest {
 
         TopologyRequestProcess process = new TopologyRequestProcess("mrid-success-signal", client, logManager);
 
-        // run() is exercised synchronously (not via start()) so the test stays a
-        // plain unit test with no live thread/timing flake; run() itself is a
-        // normal method and this is the seam that actually emits the success
-        // log (handleTopologyResponse alone does not carry attempt count or
-        // elapsed time).
+        // run() (not start()) is called directly: a plain synchronous unit test
+        // with no thread/timing flake, and the only seam that emits the success
+        // log (handleTopologyResponse alone lacks attempt count and elapsed time).
         process.run();
 
         ArgumentCaptor<String> messages = ArgumentCaptor.forClass(String.class);

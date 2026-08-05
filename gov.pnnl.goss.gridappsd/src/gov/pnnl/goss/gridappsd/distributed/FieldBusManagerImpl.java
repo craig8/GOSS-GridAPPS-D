@@ -500,12 +500,8 @@ class TopologyRequestProcess extends Thread {
     // pre-existing 3-arg constructor's behavior exactly).
     final int effectiveMaxAttempts;
 
-    // Number of attempts requestTopologyWithRetry actually made on its most
-    // recent run, set once the loop exits (success, exhaustion, or an early
-    // non-retryable break). Threaded through to the success log in
-    // logTopologySuccess so "how many attempts it took" is part of the
-    // one-line success signal, without changing handleTopologyResponse's
-    // existing test-facing signature.
+    // Attempts requestTopologyWithRetry made on its most recent run; consumed
+    // by logTopologySuccess without altering handleTopologyResponse's signature.
     private volatile int attemptsMade;
 
     public TopologyRequestProcess(String fieldModelMrid, Client client, LogManager logManager) {
@@ -700,14 +696,9 @@ class TopologyRequestProcess extends Thread {
     // return, and after Client.getResponse's core-api signature added a
     // declared JMSException alongside SystemException.
     private Serializable attemptTopologyRequest(TopologyRequest request, int attempt) {
-        // Per-attempt visibility (observability gap): logged unconditionally, on
-        // every attempt, at a level visible in the default configuration,
-        // independent of whether this attempt throws, times out cleanly, or
-        // succeeds. Before this line, a clean per-attempt timeout (getResponse
-        // returns null with no exception) produced NO log at all, so a
-        // zero-retry cold start and a four-retry cold start were
-        // indistinguishable after the fact; the catch block below only ever
-        // logged the exception-throwing case.
+        // Logged unconditionally, not just on the catch-block failure path below:
+        // a clean null timeout previously produced no log at all, making a
+        // zero-retry and a multi-retry cold start indistinguishable after the fact.
         if (logManager != null) {
             logManager.info(ProcessStatus.RUNNING, null,
                     "Topology request attempt " + attempt + "/" + effectiveMaxAttempts
@@ -803,17 +794,17 @@ class TopologyRequestProcess extends Thread {
         return root != null;
     }
 
-    // Success signal (observability gap this change closes): the ONLY log line
-    // emitted when a topology request succeeds end to end. Before this, a
-    // working topology query and a silently broken one (idle, root stays null)
-    // looked identical in the logs: the warn-on-failure path above already
-    // covers the broken case, this covers the working one. Logged at INFO with
-    // the facts a human needs to answer "did it work, and how hard was it" in
-    // one grep: the field model mrid requested, how many attempts it took
-    // against the configured bound, the elapsed time from the first request to
-    // success, and the response shape (payload size and substation count) so an
-    // empty-but-successful response is distinguishable from a populated one
-    // (GADP-050: Python received 74KB where Java received null).
+    /**
+     * Logs the single INFO line for a successful topology request, so a
+     * working query and a silently broken one (idle, root stays null) are
+     * distinguishable in the logs. Reports response shape (size and
+     * substation count) so an empty-but-successful response is distinguishable
+     * from a populated one (GADP-050: Python received 74KB where Java received
+     * null).
+     *
+     * @param requestStartTimeMs wall-clock start time, used for the elapsed-time figure
+     * @param topoResponse the raw response, used to compute the payload size
+     */
     private void logTopologySuccess(long requestStartTimeMs, Serializable topoResponse) {
         if (logManager == null) {
             return;
